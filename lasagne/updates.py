@@ -721,8 +721,10 @@ def norm_constraint(tensor_var, max_norm, norm_axes=None, epsilon=1e-7):
     Notes
     -----
     When `norm_axes` is not specified, the axes over which the norm is
-    computed depend on the dimensionality of the input variable. If it is
-    2D, it is assumed to come from a dense layer, and the norm is computed
+    computed depend on the dimensionality of the input variable. If it is 
+    1D, it is assumed to be something like the bias of the dense layer,
+    and a simple absolute value will be computed. If it is 2D, it is 
+    assumed to come from a dense layer, and the norm is computed
     over axis 0. If it is 3D, 4D or 5D, it is assumed to come from a
     convolutional layer and the norm is computed over all trailing axes
     beyond axis 0. For other uses, you should explicitly specify the axes
@@ -732,6 +734,8 @@ def norm_constraint(tensor_var, max_norm, norm_axes=None, epsilon=1e-7):
 
     if norm_axes is not None:
         sum_over = tuple(norm_axes)
+    elif ndim == 1:  # Bias terms (e.g. for Dense Layer)
+        sum_over = ()
     elif ndim == 2:  # DenseLayer
         sum_over = (0,)
     elif ndim in [3, 4, 5]:  # Conv{1,2,3}DLayer
